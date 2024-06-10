@@ -4,6 +4,9 @@
  */
 package com.mycompany.proyecto;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 /**
  *
  * @author Estudiante
@@ -23,6 +26,8 @@ public class Empleado extends Persona {
         this.direccion = direccion;
     }
     
+    public Empleado(){
+    }
     
 //Getter and Setter
     public int getNroDeLegajo() {
@@ -55,5 +60,6 @@ public class Empleado extends Persona {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+    
     
 }

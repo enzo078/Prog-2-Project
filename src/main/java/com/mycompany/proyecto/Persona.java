@@ -23,6 +23,10 @@ public class Persona {
         this.apellido = apellido;
     }    
     
+    public Persona(){
+        
+    }
+    
     
 //Getter and Setter
     public int getDni (){
@@ -47,5 +51,12 @@ public class Persona {
     
     public void setApellido(String apellido){
         this.apellido = apellido;
-    }           
+    }  
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+    
+    
 }

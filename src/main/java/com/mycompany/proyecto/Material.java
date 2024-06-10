@@ -27,6 +27,11 @@ public class Material {
         this.precioVenta = precioVenta;
     }
 
+    public Material() {
+    }
+    
+    
+
     
 //Getter and Setter
     public String getNombre() {
@@ -76,5 +81,12 @@ public class Material {
     public void setPrecioVenta(float precioVenta) {
         this.precioVenta = precioVenta;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+    
+    
     
 }

@@ -11,11 +11,16 @@ package com.mycompany.proyecto;
 public class ClienteComprador extends Persona{
     private int telefono;
     private String direccion;
+    private int cant;
     
     public ClienteComprador(int dni, String nombre, String apellido, String direccion, int telefono) {
         super(dni, nombre, apellido);
         this.direccion = direccion;
         this.telefono = telefono;
+    }
+    
+    public ClienteComprador(){
+        
     }
     
 //Getter and Setter
@@ -35,6 +40,16 @@ public class ClienteComprador extends Persona{
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+
+    public int getCant() {
+        return cant;
+    }
+
+    public void setCant(int cant) {
+        this.cant = cant;
+    }
+    
+   
     
     
 }

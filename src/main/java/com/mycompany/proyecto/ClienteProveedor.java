@@ -23,6 +23,9 @@ public class ClienteProveedor extends Persona{
         this.direccion = direccion;
     }
   
+    public ClienteProveedor(){
+        
+    }
     
 //Getter and Setter
     public int getCuit(){

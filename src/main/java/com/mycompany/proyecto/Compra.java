@@ -11,16 +11,22 @@ package com.mycompany.proyecto;
 public class Compra {
     private String fecha;
     private ClienteComprador cliente;
-    private boolean estado;
+    private String estado;
     private Empleado empleado;
+    private Material material;
     
     
 //Constructor
-    public Compra(String fecha, ClienteComprador cliente, boolean estado, Empleado empleado) {
+    public Compra(String fecha, ClienteComprador cliente, String estado, Empleado empleado, Material material) {
         this.fecha = fecha;
         this.cliente = cliente;
         this.estado = estado;
         this.empleado = empleado;
+        this.material = material;
+    }
+    
+    public Compra(){
+        
     }
 
 
@@ -41,11 +47,11 @@ public class Compra {
         this.cliente = cliente;
     }
 
-    public boolean isEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
@@ -57,4 +63,18 @@ public class Compra {
         this.empleado = empleado;
     }
 
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    @Override
+    public String toString() {
+        return "Compra{" + "fecha=" + fecha + ", cliente=" + cliente + ", estado=" + estado + ", empleado=" + empleado + ", material=" + material + '}';
+    }
+
+    
 }
