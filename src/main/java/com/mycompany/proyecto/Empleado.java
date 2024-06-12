@@ -60,6 +60,7 @@ public class Empleado extends Persona {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+
     
     
 }

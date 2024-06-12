@@ -13,12 +13,15 @@ public class Venta {
     private String fecha;
     private String estado;
     private Material material;
+    private double cantidad;
+    
 
-    public Venta(ClienteProveedor proveedor,Material material, String fecha, String estado) {
+    public Venta(ClienteProveedor proveedor,Material material, String fecha, String estado, double cantidad) {
         this.proveedor = proveedor;
         this.fecha = fecha;
         this.estado = estado;
         this.material = material;
+        this.cantidad = cantidad;
     }
 
     public Venta() {
@@ -54,6 +57,14 @@ public class Venta {
 
     public void setMaterial(Material material) {
         this.material = material;
+    }
+
+    public double getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(double cantidad) {
+        this.cantidad = cantidad;
     }
     
     

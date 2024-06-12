@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import com.mycompany.proyecto.ClienteProveedor;
+import com.mycompany.proyecto.Comparador;
 import com.mycompany.proyecto.Compra;
 import com.mycompany.proyecto.Venta;
 import com.mycompany.proyecto.Material;
@@ -37,6 +38,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.TableView;
 import java.util.Date;
 import java.util.Iterator;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -50,6 +52,17 @@ public class Interfaz extends javax.swing.JFrame {
     
     public Interfaz() {
         initComponents();
+        leerArchivo();
+        actualizarTabla();
+        actualizarTablaCompradores();
+        actualizarTablaMateriales();
+        actualizarTablaProveedores();
+        llenarDatosCompra();
+        llenarDatosVenta();
+        mostrarComboBoxEmpleado();
+        mostrarComboBoxComprador();
+        mostrarComboBoxProveedor();
+        
         
         
     }
@@ -66,249 +79,334 @@ public class Interfaz extends javax.swing.JFrame {
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     DefaultComboBoxModel defaul = new DefaultComboBoxModel();
     
-    public void cargarArchivo(){
-        //JDateChooser fecha = new JDateChooser();
+    public void cargarArchivo() {
+    try {
+        File archivo = new File("Backup.txt");
+        FileWriter fArchivo = new FileWriter(archivo);
+        BufferedWriter bArchivo = new BufferedWriter(fArchivo);
+        bArchivo.append("*\n");
         
-        try{
-            File archivo = new File("Backup.txt");
-            FileWriter fArchivo = new FileWriter(archivo);
-            BufferedWriter bArchivo = new BufferedWriter(fArchivo);
+       
         
-            for (Empleado empleado : listaEmpleados){
-                bArchivo.append(empleado.getNombre());
-                bArchivo.append(empleado.getApellido());
-                bArchivo.append(Integer.toString(empleado.getDni()));
-                bArchivo.append(empleado.getDireccion());
-                bArchivo.append(Integer.toString(empleado.getTelefono()));
-                bArchivo.append(Integer.toString(empleado.getNroDeLegajo()));
-                bArchivo.append(empleado.getFecha());
+        for (Empleado empleado : listaEmpleados) {
+            bArchivo.append(empleado.getNombre()).append("\n");
+            bArchivo.append(empleado.getApellido()).append("\n");
+            bArchivo.append(Integer.toString(empleado.getDni())).append("\n");
+            bArchivo.append(empleado.getDireccion()).append("\n");
+            bArchivo.append(Integer.toString(empleado.getTelefono())).append("\n");
+            bArchivo.append(Integer.toString(empleado.getNroDeLegajo())).append("\n");
+            bArchivo.append(empleado.getFecha()).append("\n");
+            if(listaEmpleados.indexOf(empleado) != listaEmpleados.size()-1)
+            bArchivo.append("*\n");
+        }
+
+        if(!listaPersonas.isEmpty()){
+        bArchivo.append("Personas\n");
+        
+        for (Persona cliente : listaPersonas) {
+            if (cliente instanceof ClienteComprador) {
+                bArchivo.append("Comprador\n");
+                bArchivo.append(cliente.getNombre()).append("\n");
+                bArchivo.append(cliente.getApellido()).append("\n");
+                bArchivo.append(Integer.toString(cliente.getDni())).append("\n");
+                bArchivo.append(Integer.toString(((ClienteComprador)cliente).getCant())).append("\n");
+                bArchivo.append(((ClienteComprador) cliente).getDireccion()).append("\n");
+                bArchivo.append(Integer.toString(((ClienteComprador) cliente).getTelefono())).append("\n");
+                if(listaPersonas.indexOf(cliente) != listaPersonas.size()-1)
                 bArchivo.append("*\n");
             }
-            
-            
-            bArchivo.append("Cliente Comprador\n");
-            bArchivo.append("*");
-            for(Persona cliente : listaPersonas){
-                if(cliente instanceof ClienteComprador){
-                    bArchivo.append(cliente.getNombre());
-                    bArchivo.append(cliente.getApellido());
-                    bArchivo.append(Integer.toString(cliente.getDni()));
-                    bArchivo.append(((ClienteComprador)cliente).getDireccion());
-                    bArchivo.append(Integer.toString(((ClienteComprador)cliente).getTelefono()));
-                    bArchivo.append("*\n");
-                }
-            }
-            bArchivo.append("Cliente Proveedor\n");
-            bArchivo.append("*");
-            
-            for(Persona cliente : listaPersonas){
-                if(cliente instanceof ClienteProveedor){
-                    bArchivo.append(cliente.getNombre());
-                    bArchivo.append(cliente.getApellido());
-                    bArchivo.append(Integer.toString(cliente.getDni()));
-                    bArchivo.append(Integer.toString(((ClienteProveedor)cliente).getCuit()));
-                    bArchivo.append(((ClienteProveedor)cliente).getDireccion());
-                    bArchivo.append(Integer.toString(((ClienteProveedor)cliente).getTelefono()));
-                    bArchivo.append(((ClienteProveedor)cliente).getCiudad());
-                    bArchivo.append("*\n");
-                }
-            }
-            bArchivo.append("Materiales\n");
-            bArchivo.append("*");
-            
-            for(Material material : listaMateriales){
-                bArchivo.append(material.getNombre());
-                bArchivo.append(material.getDescripcion());
-                bArchivo.append(material.getMedida());
-                bArchivo.append(Integer.toString(material.getStock()));
-                bArchivo.append(Double.toString(material.getPrecioCompra()));
-                bArchivo.append(Double.toString(material.getPrecioVenta()));
+   
+        
+      
+            else if (cliente instanceof ClienteProveedor) {
+                bArchivo.append("Proveedor\n");
+                bArchivo.append(cliente.getNombre()).append("\n");
+                bArchivo.append(cliente.getApellido()).append("\n");
+                bArchivo.append(Integer.toString(cliente.getDni())).append("\n");
+                bArchivo.append(Integer.toString(((ClienteProveedor) cliente).getCuit())).append("\n");
+                bArchivo.append(((ClienteProveedor) cliente).getDireccion()).append("\n");
+                bArchivo.append(Integer.toString(((ClienteProveedor) cliente).getTelefono())).append("\n");
+                bArchivo.append(((ClienteProveedor) cliente).getCiudad()).append("\n");
+                if(listaPersonas.indexOf(cliente) != listaPersonas.size()-1)
                 bArchivo.append("*\n");
-            }
-            bArchivo.append("Compras\n");
-            bArchivo.append("*");
+            }}
+        }
+        
+
+        if(!listaMateriales.isEmpty()){
+        bArchivo.append("Materiales\n");
+        for (Material material : listaMateriales) {
+            bArchivo.append(material.getNombre()).append("\n");
+            bArchivo.append(material.getDescripcion()).append("\n");
+            bArchivo.append(material.getMedida()).append("\n");
+            bArchivo.append(Integer.toString(material.getStock())).append("\n");
+            bArchivo.append(Double.toString(material.getPrecioCompra())).append("\n");
+            bArchivo.append(Double.toString(material.getPrecioVenta())).append("\n");
+            if(listaMateriales.indexOf(material) != listaMateriales.size()-1)
+            bArchivo.append("*\n");
+        }
+        }
+
+        if(!listaCompras.isEmpty()){
+        bArchivo.append("Compras\n");
+        for (Compra compra : listaCompras) {
+            bArchivo.append(compra.getEstado()).append("\n");
+            bArchivo.append(compra.getFecha()).append("\n");
             
-            Empleado empleado = new Empleado();
-            Material material = new Material();
-            ClienteComprador cliente = new ClienteComprador();
+            Empleado empleado = compra.getEmpleado();
+            bArchivo.append(empleado.getNombre()).append("\n");
+            bArchivo.append(empleado.getApellido()).append("\n");
+            bArchivo.append(Integer.toString(empleado.getDni())).append("\n");
+            bArchivo.append(empleado.getDireccion()).append("\n");
+            bArchivo.append(Integer.toString(empleado.getTelefono())).append("\n");
+            bArchivo.append(Integer.toString(empleado.getNroDeLegajo())).append("\n");
+            bArchivo.append((empleado.getFecha())+"\n");
             
-            for(Compra compra : listaCompras){
-                bArchivo.append(compra.getEstado());
-                bArchivo.append(compra.getFecha());
-                bArchivo.append((CharSequence)compra.getEmpleado());
-                empleado = compra.getEmpleado();
-                bArchivo.append(empleado.getNombre());
-                bArchivo.append(empleado.getApellido());
-                bArchivo.append(Integer.toString(empleado.getDni()));
-                bArchivo.append(empleado.getDireccion());
-                bArchivo.append(Integer.toString(empleado.getTelefono()));
-                bArchivo.append(Integer.toString(empleado.getNroDeLegajo()));
-                bArchivo.append(empleado.getFecha());
-                cliente = compra.getCliente();
-                bArchivo.append(cliente.getNombre());
-                bArchivo.append(cliente.getApellido());
-                bArchivo.append(Integer.toString(cliente.getDni()));
-                bArchivo.append(cliente.getNombre());
-                bArchivo.append(cliente.getApellido());
-                bArchivo.append(Integer.toString(cliente.getDni()));
-                bArchivo.append(((ClienteComprador)cliente).getDireccion());
-                bArchivo.append(Integer.toString(((ClienteComprador)cliente).getTelefono()));
-                material = compra.getMaterial();
-                bArchivo.append(material.getNombre());
-                bArchivo.append(material.getDescripcion());
-                bArchivo.append(material.getMedida());
-                bArchivo.append(Integer.toString(material.getStock()));
-                bArchivo.append(Double.toString(material.getPrecioCompra()));
-                bArchivo.append(Double.toString(material.getPrecioVenta()));
-                bArchivo.append("*\n");
-                
-            }
-            ClienteProveedor clienteVentas = new ClienteProveedor();
-            Material materialVentas = new Material();
+            ClienteComprador cliente = compra.getCliente();
+            bArchivo.append(cliente.getNombre()).append("\n");
+            bArchivo.append(cliente.getApellido()).append("\n");
+            bArchivo.append(Integer.toString(cliente.getDni())).append("\n");
+            bArchivo.append(cliente.getDireccion()).append("\n");
+            bArchivo.append(Integer.toString(cliente.getTelefono())).append("\n");
             
-            for(Venta venta : listaVentas){
-                bArchivo.append(venta.getEstado());
-                bArchivo.append(venta.getFecha());
-                clienteVentas = venta.getProveedor();
-                bArchivo.append(cliente.getNombre());
-                bArchivo.append(cliente.getApellido());
-                bArchivo.append(Integer.toString(cliente.getDni()));
-                bArchivo.append(Integer.toString(clienteVentas.getCuit()));
-                bArchivo.append(clienteVentas.getDireccion());
-                bArchivo.append(Integer.toString((clienteVentas.getTelefono())));
-                bArchivo.append(clienteVentas.getCiudad());
-                materialVentas = venta.getMaterial();
-                bArchivo.append(material.getNombre());
-                bArchivo.append(material.getDescripcion());
-                bArchivo.append(material.getMedida());
-                bArchivo.append(Integer.toString(material.getStock()));
-                bArchivo.append(Double.toString(material.getPrecioCompra()));
-                bArchivo.append(Double.toString(material.getPrecioVenta()));
-                bArchivo.append("*\n");
-            }
-            bArchivo.append("Fin");
-            bArchivo.close();
+            Material material = compra.getMaterial();
+            bArchivo.append(material.getNombre()).append("\n");
+            bArchivo.append(material.getDescripcion()).append("\n");
+            bArchivo.append(material.getMedida()).append("\n");
+            bArchivo.append(Integer.toString(material.getStock())).append("\n");
+            bArchivo.append(Double.toString(material.getPrecioCompra())).append("\n");
+            bArchivo.append(Double.toString(material.getPrecioVenta())).append("\n");
+            if(listaCompras.indexOf(compra) != listaCompras.size()-1)
+            bArchivo.append("*\n");
+        }}
+
+        if(!listaVentas.isEmpty()){
+        bArchivo.append("Ventas\n");
+        for (Venta venta : listaVentas) {
+            bArchivo.append(venta.getEstado()).append("\n");
+            bArchivo.append(venta.getFecha()).append("\n");
+            bArchivo.append(Double.toString(venta.getCantidad())).append("\n");
             
-        }catch(FileNotFoundException ex){
-            JOptionPane.showMessageDialog(null, "Error al cargar archivo","Error",JOptionPane.ERROR_MESSAGE);
-        }catch(IOException ex){
-            JOptionPane.showMessageDialog(null, "Error inesperado","Error",JOptionPane.ERROR_MESSAGE);
-            } 
+            ClienteProveedor clienteVentas = venta.getProveedor();
+            bArchivo.append(clienteVentas.getNombre()).append("\n");
+            bArchivo.append(clienteVentas.getApellido()).append("\n");
+            bArchivo.append(Integer.toString(clienteVentas.getDni())).append("\n");
+            bArchivo.append(Integer.toString(clienteVentas.getCuit())).append("\n");
+            bArchivo.append(clienteVentas.getDireccion()).append("\n");
+            bArchivo.append(Integer.toString(clienteVentas.getTelefono())).append("\n");
+            bArchivo.append(clienteVentas.getCiudad()).append("\n");
+            
+            Material materialVentas = venta.getMaterial();
+            bArchivo.append(materialVentas.getNombre()).append("\n");
+            bArchivo.append(materialVentas.getDescripcion()).append("\n");
+            bArchivo.append(materialVentas.getMedida()).append("\n");
+            bArchivo.append(Integer.toString(materialVentas.getStock())).append("\n");
+            bArchivo.append(Double.toString(materialVentas.getPrecioCompra())).append("\n");
+            bArchivo.append(Double.toString(materialVentas.getPrecioVenta())).append("\n");
+            if(listaVentas.indexOf(venta) != listaVentas.size()-1)
+            bArchivo.append("*\n");
+        }}
+
+        bArchivo.append("Fin\n");
+        bArchivo.close();
+
+    } catch (FileNotFoundException ex) {
+        JOptionPane.showMessageDialog(null, "Error al cargar archivo", "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (IOException ex) {
+        JOptionPane.showMessageDialog(null, "Error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
     }
-        
+}
+    public void mostrarComboBoxEmpleado(){
+       
+        DefaultComboBoxModel<String> modeloEmpleado = new DefaultComboBoxModel<>();
+    for (Empleado empleado : listaEmpleados) {
+        modeloEmpleado.addElement(empleado.getNombre());
+    }
+    boxModifEmpleado.setModel(modeloEmpleado);
+    }  
     
-    public void leerArchivo(){
-         SimpleDateFormat fecha = new SimpleDateFormat("dd/MM/yyyy");
-         
-         try{
-            File archivo = new File ("Backup.txt");
-            FileReader rArchivo = new FileReader(archivo);
-            BufferedReader bArchivo = new BufferedReader(rArchivo);
-            
-            String valorActual;
-            while(!(bArchivo.readLine().equals("Cliente Comprador"))){
+    public void mostrarComboBoxProveedor(){
+       
+        DefaultComboBoxModel<String> modeloProveedor = new DefaultComboBoxModel<>();
+    for (Persona proveedor : listaPersonas) {
+        if (proveedor instanceof ClienteProveedor) {
+            modeloProveedor.addElement(proveedor.getNombre());
+        }
+    }
+    boxProveedor.setModel(modeloProveedor);
+    }
+    
+    public void mostrarComboBoxComprador(){
+        
+         DefaultComboBoxModel<String> modeloComprador = new DefaultComboBoxModel<>();
+    for (Persona cliente : listaPersonas) {
+        if (cliente instanceof ClienteComprador) {
+            modeloComprador.addElement(cliente.getNombre());
+        }
+    }
+    boxComprador.setModel(modeloComprador);
+    }
+    
+    public void leerArchivo() {
+    SimpleDateFormat fecha = new SimpleDateFormat("dd/MM/yyyy");
+
+    try {
+        File archivo = new File("Backup.txt");
+        FileReader rArchivo = new FileReader(archivo);
+        BufferedReader bArchivo = new BufferedReader(rArchivo);
+
+        String valorActual;
+        valorActual = bArchivo.readLine();
+
+        // Leer empleados
+        if (valorActual != null) {
+            while (valorActual.equals("*")) {
                 Empleado empleado = new Empleado();
                 
                 empleado.setNombre(bArchivo.readLine());
                 empleado.setApellido(bArchivo.readLine());
-                empleado.setDni(Integer.parseInt(bArchivo.readLine()));
+                empleado.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
                 empleado.setDireccion(bArchivo.readLine());
-                empleado.setNombre(bArchivo.readLine());
-                empleado.setTelefono(Integer.parseInt(bArchivo.readLine()));
-                empleado.setNroDeLegajo(Integer.parseInt(bArchivo.readLine()));
-                empleado.setFecha(bArchivo.readLine()); 
+                empleado.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                empleado.setNroDeLegajo(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                empleado.setFecha(bArchivo.readLine());
                 listaEmpleados.add(empleado);
-            }
-            
-             while(!(bArchivo.readLine().equals("Cliente Proveedor"))){
-                 ClienteComprador cliente = new ClienteComprador();
-                 
-                 cliente.setNombre(bArchivo.readLine());
-                 cliente.setApellido(bArchivo.readLine());
-                 cliente.setDni(Integer.parseInt(bArchivo.readLine()));
-                 cliente.setDireccion(bArchivo.readLine());
-                 cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));
-                 listaPersonas.add(cliente);
-             }
-                 
-            while(!(bArchivo.readLine().equals("Materiales"))){ 
-                ClienteProveedor cliente = new ClienteProveedor();
                 
-                cliente.setNombre(bArchivo.readLine());
-                 cliente.setApellido(bArchivo.readLine());
-                 cliente.setDni(Integer.parseInt(bArchivo.readLine()));
-                 cliente.setCuit(Integer.parseInt(bArchivo.readLine()));
-                 cliente.setDireccion(bArchivo.readLine());
-                 cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));
-                 cliente.setCiudad(bArchivo.readLine());
-                 listaPersonas.add(cliente);
+                valorActual = bArchivo.readLine();
             }
-            
-            while(!(bArchivo.readLine().equals("Compras"))){
+
+            // Leer cliente comprador
+            while (valorActual.equals("Personas") || valorActual.equals("*")) {
+                valorActual = bArchivo.readLine();
+                if (valorActual.equals("Comprador")) {
+                    ClienteComprador cliente = new ClienteComprador();
+                    
+                    cliente.setNombre(bArchivo.readLine());
+                    cliente.setApellido(bArchivo.readLine());
+                    cliente.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    cliente.setCant(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    cliente.setDireccion(bArchivo.readLine());
+                    cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    listaPersonas.add(cliente);
+                    
+                    valorActual = bArchivo.readLine();
+                } else if (valorActual.equals("Proveedor")) {
+                    // Leer cliente proveedor
+                    ClienteProveedor cliente = new ClienteProveedor();
+                    
+                    cliente.setNombre(bArchivo.readLine());
+                    cliente.setApellido(bArchivo.readLine());
+                    cliente.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    cliente.setCuit(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    cliente.setDireccion(bArchivo.readLine());
+                    cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                    cliente.setCiudad(bArchivo.readLine());
+                    listaPersonas.add(cliente);
+                    
+                    valorActual = bArchivo.readLine();
+                }
+            }
+
+            // Leer materiales
+            while (valorActual.equals("Materiales") || valorActual.equals("*")) {
                 Material material = new Material();
                 
                 material.setNombre(bArchivo.readLine());
                 material.setDescripcion(bArchivo.readLine());
                 material.setMedida(bArchivo.readLine());
-                material.setStock(Integer.parseInt(bArchivo.readLine()));
-                material.setPrecioCompra((float) Double.parseDouble(bArchivo.readLine()));
-                material.setPrecioVenta((float) Double.parseDouble(bArchivo.readLine()));
+                material.setStock(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                material.setPrecioCompra((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                material.setPrecioVenta((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
                 listaMateriales.add(material);
+                
+                valorActual = bArchivo.readLine();
             }
-            
-            while(!(bArchivo.readLine().equals("Ventas"))){
+
+            // Leer compras
+            while (valorActual.equals("Compras") || valorActual.equals("*")) {
                 Compra compra = new Compra();
                 Empleado empleado = new Empleado();
-                Material material = new Material();
                 ClienteComprador cliente = new ClienteComprador();
+                Material material = new Material();
                 
                 compra.setEstado(bArchivo.readLine());
                 compra.setFecha(bArchivo.readLine());
+                
                 empleado.setNombre(bArchivo.readLine());
                 empleado.setApellido(bArchivo.readLine());
-                empleado.setDni(Integer.parseInt(bArchivo.readLine()));
+                empleado.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
                 empleado.setDireccion(bArchivo.readLine());
-                empleado.setNombre(bArchivo.readLine());
-                empleado.setTelefono(Integer.parseInt(bArchivo.readLine()));
-                empleado.setNroDeLegajo(Integer.parseInt(bArchivo.readLine()));
-                empleado.setFecha(bArchivo.readLine()); 
+                empleado.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                empleado.setNroDeLegajo(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                empleado.setFecha(bArchivo.readLine());
                 compra.setEmpleado(empleado);
+                
                 cliente.setNombre(bArchivo.readLine());
                 cliente.setApellido(bArchivo.readLine());
-                cliente.setDni(Integer.parseInt(bArchivo.readLine()));
+                cliente.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
                 cliente.setDireccion(bArchivo.readLine());
-                cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));
+                cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                compra.setCliente(cliente);
+                
+                material.setNombre(bArchivo.readLine());
+                material.setDescripcion(bArchivo.readLine());
+                material.setMedida(bArchivo.readLine());
+                material.setStock(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                material.setPrecioCompra((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                material.setPrecioVenta((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
                 compra.setMaterial(material);
+                
                 listaCompras.add(compra);
+                
+                valorActual = bArchivo.readLine();
             }
-            
-            while(!(bArchivo.readLine().equals("Fin"))){
-                ClienteProveedor cliente = new ClienteProveedor();
-                Material material = new Material();
+
+            // Leer ventas
+            while (valorActual.equals("Ventas") || valorActual.equals("*")) {
                 Venta venta = new Venta();
+                ClienteProveedor clienteVentas = new ClienteProveedor();
+                Material materialVentas = new Material();
                 
                 venta.setEstado(bArchivo.readLine());
                 venta.setFecha(bArchivo.readLine());
-                cliente.setNombre(bArchivo.readLine());
-                cliente.setApellido(bArchivo.readLine());
-                cliente.setDni(Integer.parseInt(bArchivo.readLine()));
-                cliente.setCuit(Integer.parseInt(bArchivo.readLine()));
-                cliente.setDireccion(bArchivo.readLine());
-                cliente.setTelefono(Integer.parseInt(bArchivo.readLine()));
-                cliente.setCiudad(bArchivo.readLine());
-                venta.setProveedor(cliente);
-                material.setNombre(bArchivo.readLine());
+                venta.setCantidad((float) Double.parseDouble(bArchivo.readLine()));
+                
+                clienteVentas.setNombre(bArchivo.readLine());
+                clienteVentas.setApellido(bArchivo.readLine());
+                clienteVentas.setDni(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                clienteVentas.setCuit((int) Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                clienteVentas.setDireccion(bArchivo.readLine());
+                clienteVentas.setTelefono(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                clienteVentas.setCiudad(bArchivo.readLine());
+                venta.setProveedor(clienteVentas);
+                
+                materialVentas.setNombre(bArchivo.readLine());
+                materialVentas.setDescripcion(bArchivo.readLine());
+                materialVentas.setMedida(bArchivo.readLine());
+                materialVentas.setStock(Integer.parseInt(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                materialVentas.setPrecioCompra((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                materialVentas.setPrecioVenta((float) Double.parseDouble(bArchivo.readLine()));  // Asegurarse que esta línea contenga solo números
+                venta.setMaterial(materialVentas);
+                
                 listaVentas.add(venta);
+                
+                valorActual = bArchivo.readLine();
             }
-            
-            bArchivo.close();
-            }catch(FileNotFoundException ex){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la carga de datos","Error",JOptionPane.ERROR_MESSAGE);
-            }catch(java.lang.NumberFormatException ex){
-                JOptionPane.showMessageDialog(null, "Error al cargar un número","Error",JOptionPane.ERROR_MESSAGE);
-            }catch(IOException ex){
-                JOptionPane.showMessageDialog(null, "Hubo un error inesperado","Error",JOptionPane.ERROR_MESSAGE);}
+        }
+        bArchivo.close();
+    } catch (FileNotFoundException ex) {
+        JOptionPane.showMessageDialog(null, "Hubo un error en la carga de datos", "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(null, "Error al cargar un número", "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();  // Añadir rastreo de pila para depuración
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "Hubo un error inesperado", "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();  // Añadir rastreo de pila para depuración
+    }
 }
+
+    
+
     
     
     
@@ -357,7 +455,6 @@ public class Interfaz extends javax.swing.JFrame {
         legajoEmpleado = new javax.swing.JSpinner();
         fechaEmpleado = new com.toedter.calendar.JDateChooser();
         jPanel5 = new javax.swing.JPanel();
-        boxModifEmpleado = new javax.swing.JComboBox<>();
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
         nombreEmpleado1 = new javax.swing.JTextField();
@@ -370,7 +467,8 @@ public class Interfaz extends javax.swing.JFrame {
         jLabel36 = new javax.swing.JLabel();
         actualizarEmpleado = new javax.swing.JButton();
         eliminarEmpleado = new javax.swing.JButton();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        fechaEmpleado1 = new com.toedter.calendar.JDateChooser();
+        boxModifEmpleado = new javax.swing.JComboBox<>();
         compradoresPanel = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -387,7 +485,6 @@ public class Interfaz extends javax.swing.JFrame {
         dniComprador = new javax.swing.JSpinner();
         telComprador = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
-        boxComprador = new javax.swing.JComboBox<>();
         nombreComprador1 = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
         jLabel42 = new javax.swing.JLabel();
@@ -398,6 +495,8 @@ public class Interfaz extends javax.swing.JFrame {
         jLabel44 = new javax.swing.JLabel();
         eliminarComprador = new javax.swing.JButton();
         actualizarComprador = new javax.swing.JButton();
+        jLabel55 = new javax.swing.JLabel();
+        boxComprador = new javax.swing.JComboBox<>();
         proveedoresPanel = new javax.swing.JTabbedPane();
         jPanel7 = new javax.swing.JPanel();
         cargarProveedores = new javax.swing.JButton();
@@ -456,6 +555,8 @@ public class Interfaz extends javax.swing.JFrame {
         ventaNoDespachada = new javax.swing.JRadioButton();
         cargarVenta = new javax.swing.JButton();
         fechaVenta = new com.toedter.calendar.JDateChooser();
+        cantidadMaterial = new javax.swing.JSpinner();
+        jLabel57 = new javax.swing.JLabel();
         materialesPanel = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         nombreMaterial = new javax.swing.JTextField();
@@ -481,15 +582,17 @@ public class Interfaz extends javax.swing.JFrame {
         listarClientes = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jScrollPane7 = new javax.swing.JScrollPane();
-        tablaListarClientes1 = new javax.swing.JTable();
+        tablaListarClientesAlf = new javax.swing.JTable();
         jButton3 = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
-        tablaListarClientes2 = new javax.swing.JTable();
-        jDateChooser2 = new com.toedter.calendar.JDateChooser();
-        jDateChooser3 = new com.toedter.calendar.JDateChooser();
+        tablaListarVentas = new javax.swing.JTable();
+        listarFecha1 = new com.toedter.calendar.JDateChooser();
+        listarFecha2 = new com.toedter.calendar.JDateChooser();
         jLabel52 = new javax.swing.JLabel();
         jLabel53 = new javax.swing.JLabel();
         jLabel54 = new javax.swing.JLabel();
+        mostrarTotal = new javax.swing.JTextField();
+        jLabel56 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocationByPlatform(true);
@@ -696,16 +799,9 @@ public class Interfaz extends javax.swing.JFrame {
                 "Nombre", "Apellido", "DNI", "Direccion", "Telefono", "Legajo", "Ingreso"
             }
         ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class
-            };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false
             };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
@@ -789,13 +885,6 @@ public class Interfaz extends javax.swing.JFrame {
 
         empleadosPanel.addTab("Cargar", jPanel4);
 
-        boxModifEmpleado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxModifEmpleado.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxModifEmpleadoActionPerformed(evt);
-            }
-        });
-
         jLabel29.setText("Empleado");
 
         jLabel30.setText("Nombre");
@@ -822,37 +911,45 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        boxModifEmpleado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        boxModifEmpleado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxModifEmpleadoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(413, Short.MAX_VALUE)
+                .addComponent(actualizarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(51, 51, 51)
+                .addComponent(eliminarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(60, 60, 60))
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(61, 61, 61)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel29)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(direEmpleado1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                                .addComponent(jLabel30)
-                                .addComponent(jLabel33)
-                                .addComponent(nombreEmpleado1)
-                                .addComponent(apellidoEmpleado1))
-                            .addComponent(jLabel36)
-                            .addComponent(boxModifEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(boxModifEmpleado, javax.swing.GroupLayout.Alignment.LEADING, 0, 150, Short.MAX_VALUE)
+                            .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(direEmpleado1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(jLabel30)
+                                    .addComponent(jLabel33)
+                                    .addComponent(nombreEmpleado1)
+                                    .addComponent(apellidoEmpleado1))
+                                .addComponent(jLabel36)))
                         .addGap(137, 137, 137)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel35)
                             .addComponent(jLabel31)
                             .addComponent(teleEmpleado1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                            .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(270, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(actualizarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(51, 51, 51)
-                .addComponent(eliminarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60))
+                            .addComponent(fechaEmpleado1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -874,7 +971,7 @@ public class Interfaz extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(apellidoEmpleado1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(fechaEmpleado1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel31)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -994,13 +1091,6 @@ public class Interfaz extends javax.swing.JFrame {
 
         compradoresPanel.addTab("Carga", jPanel1);
 
-        boxComprador.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        boxComprador.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxCompradorActionPerformed(evt);
-            }
-        });
-
         jLabel28.setText("Nombre");
 
         jLabel42.setText("Telefono");
@@ -1023,6 +1113,15 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        jLabel55.setText("Comprador");
+
+        boxComprador.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        boxComprador.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxCompradorActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -1036,26 +1135,30 @@ public class Interfaz extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(94, 94, 94)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(boxComprador, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel55)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel44)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(direComprador1, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel28, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel43, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(nombreComprador1, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(apellidoComprador1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel44)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(direComprador1, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel28, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel43, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(nombreComprador1, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(apellidoComprador1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(boxComprador, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(162, 162, 162)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel42)
                             .addComponent(telComprador1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(212, Short.MAX_VALUE))
+                .addContainerGap(211, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(79, 79, 79)
+                .addGap(57, 57, 57)
+                .addComponent(jLabel55)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(boxComprador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(80, 80, 80)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -1425,10 +1528,34 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        jLabel57.setText("Cantidad de materiales");
+
         javax.swing.GroupLayout ventasPanelLayout = new javax.swing.GroupLayout(ventasPanel);
         ventasPanel.setLayout(ventasPanelLayout);
         ventasPanelLayout.setHorizontalGroup(
             ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ventasPanelLayout.createSequentialGroup()
+                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ventasPanelLayout.createSequentialGroup()
+                        .addGap(169, 169, 169)
+                        .addComponent(jLabel41))
+                    .addGroup(ventasPanelLayout.createSequentialGroup()
+                        .addGap(116, 116, 116)
+                        .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ventaNoDespachada)
+                            .addComponent(ventaDespachada))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
+                        .addComponent(cargarVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(106, 106, 106))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
+                        .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(cantidadMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(boxMaterialVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(159, 159, 159))))
             .addGroup(ventasPanelLayout.createSequentialGroup()
                 .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(ventasPanelLayout.createSequentialGroup()
@@ -1443,28 +1570,11 @@ public class Interfaz extends javax.swing.JFrame {
                 .addComponent(jLabel40)
                 .addGap(235, 235, 235))
             .addGroup(ventasPanelLayout.createSequentialGroup()
-                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ventasPanelLayout.createSequentialGroup()
-                        .addGap(196, 196, 196)
-                        .addComponent(jLabel39))
-                    .addGroup(ventasPanelLayout.createSequentialGroup()
-                        .addGap(169, 169, 169)
-                        .addComponent(jLabel41))
-                    .addGroup(ventasPanelLayout.createSequentialGroup()
-                        .addGap(116, 116, 116)
-                        .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ventaNoDespachada)
-                            .addComponent(ventaDespachada))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
-                        .addComponent(boxMaterialVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(159, 159, 159))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ventasPanelLayout.createSequentialGroup()
-                        .addComponent(cargarVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(106, 106, 106))))
+                .addGap(196, 196, 196)
+                .addComponent(jLabel39)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 219, Short.MAX_VALUE)
+                .addComponent(jLabel57)
+                .addGap(192, 192, 192))
         );
         ventasPanelLayout.setVerticalGroup(
             ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1478,16 +1588,20 @@ public class Interfaz extends javax.swing.JFrame {
                     .addComponent(boxMaterialVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(boxProveedorVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(40, 40, 40)
-                .addComponent(jLabel39)
+                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel39)
+                    .addComponent(jLabel57))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(fechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(ventasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cantidadMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(74, 74, 74)
                 .addComponent(jLabel41)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ventaDespachada)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ventaNoDespachada)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
                 .addComponent(cargarVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(76, 76, 76))
         );
@@ -1651,8 +1765,13 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         jButton2.setText("Listar clientes por cantidad de compras");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
-        tablaListarClientes1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaListarClientesAlf.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -1663,31 +1782,41 @@ public class Interfaz extends javax.swing.JFrame {
                 "Nombre", "Apellido", "DNI"
             }
         ));
-        jScrollPane7.setViewportView(tablaListarClientes1);
-        if (tablaListarClientes1.getColumnModel().getColumnCount() > 0) {
-            tablaListarClientes1.getColumnModel().getColumn(2).setHeaderValue("DNI");
+        jScrollPane7.setViewportView(tablaListarClientesAlf);
+        if (tablaListarClientesAlf.getColumnModel().getColumnCount() > 0) {
+            tablaListarClientesAlf.getColumnModel().getColumn(2).setHeaderValue("DNI");
         }
 
         jButton3.setText("Listar ventas");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
-        tablaListarClientes2.setModel(new javax.swing.table.DefaultTableModel(
+        tablaListarVentas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Venta", "Total"
+                "Cliente", "Material", "Cantidad Materiales", "Fecha", "Estado"
             }
         ));
-        jScrollPane8.setViewportView(tablaListarClientes2);
+        jScrollPane8.setViewportView(tablaListarVentas);
+        if (tablaListarVentas.getColumnModel().getColumnCount() > 0) {
+            tablaListarVentas.getColumnModel().getColumn(1).setResizable(false);
+        }
 
         jLabel52.setText("Desde:");
 
         jLabel53.setText("Hasta:");
 
         jLabel54.setText("Listar ventas en un determinado tiempo");
+
+        jLabel56.setText("Total:");
 
         javax.swing.GroupLayout listarPanelLayout = new javax.swing.GroupLayout(listarPanel);
         listarPanel.setLayout(listarPanelLayout);
@@ -1700,6 +1829,19 @@ public class Interfaz extends javax.swing.JFrame {
                         .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane5)
                             .addComponent(jScrollPane6)
+                            .addGroup(listarPanelLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jLabel52)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(listarFecha1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(54, 54, 54)
+                                .addComponent(jLabel53)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(listarFecha2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(64, 64, 64)
+                                .addComponent(jLabel56)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mostrarTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane8)))
                     .addGroup(listarPanelLayout.createSequentialGroup()
                         .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1708,34 +1850,28 @@ public class Interfaz extends javax.swing.JFrame {
                                 .addComponent(listarClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(listarPanelLayout.createSequentialGroup()
                                 .addGap(270, 270, 270)
-                                .addComponent(listarEmpleados))
-                            .addGroup(listarPanelLayout.createSequentialGroup()
-                                .addGap(143, 143, 143)
-                                .addComponent(jLabel52)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(54, 54, 54)
-                                .addComponent(jLabel53)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jDateChooser3, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 217, Short.MAX_VALUE)))
+                                .addComponent(listarEmpleados)))
+                        .addGap(0, 276, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listarPanelLayout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel54)
                 .addGap(275, 275, 275))
             .addGroup(listarPanelLayout.createSequentialGroup()
-                .addGap(339, 339, 339)
-                .addComponent(jButton3)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listarPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(269, 269, 269))
-            .addGroup(listarPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane7)
-                .addContainerGap())
+                .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(listarPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane7)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listarPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listarPanelLayout.createSequentialGroup()
+                                .addComponent(jButton2)
+                                .addGap(269, 269, 269))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listarPanelLayout.createSequentialGroup()
+                                .addComponent(jButton3)
+                                .addGap(340, 340, 340))))))
         );
         listarPanelLayout.setVerticalGroup(
             listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1756,9 +1892,12 @@ public class Interfaz extends javax.swing.JFrame {
                 .addComponent(jLabel54)
                 .addGap(18, 18, 18)
                 .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(mostrarTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel56))
                     .addGroup(listarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jDateChooser2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jDateChooser3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(listarFecha1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(listarFecha2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel53)
                     .addComponent(jLabel52))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1828,7 +1967,7 @@ public class Interfaz extends javax.swing.JFrame {
             
             JOptionPane.showMessageDialog(pintarPanel, "Se cargaron mal los datos", "Error", JOptionPane.ERROR_MESSAGE);
         }else{
-            ClienteComprador aux = new ClienteComprador((int)dniComprador.getValue(), nombreComprador.getText(), apellidoComprador.getText(), direComprador.getText(), (int)telComprador.getValue());
+            ClienteComprador aux = new ClienteComprador((int)dniComprador.getValue(), nombreComprador.getText(), apellidoComprador.getText(), direComprador.getText(), (int)telComprador.getValue() );
             listaPersonas.add(aux);
             nombreComprador.setText("");
             apellidoComprador.setText("");
@@ -1836,20 +1975,22 @@ public class Interfaz extends javax.swing.JFrame {
             telComprador.setValue(0);
             direComprador.setText("");
             llenarDatosCompra();
-        }
-        boxComprador.setModel(defaul);
-        for (Persona clientes : listaPersonas){
-            if (clientes instanceof ClienteComprador){
-                boxComprador.addItem(String.valueOf(clientes.getDni()));
-                actualizarTablaCompradores();
+            boxComprador.setModel(defaul);
+            for (Persona clientes : listaPersonas){
+                if (clientes instanceof ClienteComprador){
+                 boxComprador.addItem(clientes.getNombre());
+                
             }
+            
+        }
+            actualizarTablaCompradores();
+        
+            cargarArchivo();
         }
         
     }//GEN-LAST:event_cargarCompradoresActionPerformed
 
     private void botonCargarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarEmpleadoActionPerformed
-        Date fechaVieja = fechaEmpleado.getDate();
-        String fecha = sdf.format(fechaVieja);
         if (nombreEmpleado.getText().equals("") || apellidoEmpleado.getText().equals("") || 
             (int)dniEmpleado.getValue() <= 0 || (int)teleEmpleado.getValue() <= 0 || 
             direEmpleado.getText().equals("") || 
@@ -1858,7 +1999,7 @@ public class Interfaz extends javax.swing.JFrame {
              
             JOptionPane.showMessageDialog(pintarPanel, "Se cargaron mal los datos", "Error", JOptionPane.ERROR_MESSAGE);
         }else{
-            Empleado aux = new Empleado((int)dniEmpleado.getValue(), nombreEmpleado.getText(), apellidoEmpleado.getText(), direEmpleado.getText(), (int)teleEmpleado.getValue(),(int)legajoEmpleado.getValue() , fecha);
+            Empleado aux = new Empleado((int)dniEmpleado.getValue(), nombreEmpleado.getText(), apellidoEmpleado.getText(), direEmpleado.getText(), (int)teleEmpleado.getValue(),(int)legajoEmpleado.getValue() , fechaEmpleado.getDateFormatString());
             listaEmpleados.add(aux);
             nombreEmpleado.setText("");
             apellidoEmpleado.setText("");
@@ -1866,49 +2007,57 @@ public class Interfaz extends javax.swing.JFrame {
             teleEmpleado.setValue(0);
             direEmpleado.setText("");
             legajoEmpleado.setValue(0);
-            fechaEmpleado.setDate(fechaVieja);
+            fechaEmpleado.setDate(null);
 
-            boxModifEmpleado.setModel(defaul);
+            
             llenarDatosCompra();
-            for (Empleado empleados : listaEmpleados){
-                boxModifEmpleado.addItem(String.valueOf(empleados.getNroDeLegajo()));
-                actualizarTabla();
+            actualizarTabla();
+            boxModifEmpleado.setModel(defaul);
+            for(Empleado empleado : listaEmpleados ){
+                boxModifEmpleado.addItem(empleado.getNombre());
             }
+            
+            
             cargarArchivo();
         }
     }//GEN-LAST:event_botonCargarEmpleadoActionPerformed
 
     private void cargarProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarProveedoresActionPerformed
         if (nombreProveedor.getText().equals("") || 
-            apellidoProveedor.getText().equals("") || 
-            direProveedor.getText().equals("") || 
-            ciudadProveedor.getText().equals("") || 
-            (int)dniProveedor.getValue() <= 0 || 
-            (int)cuitProveedor.getValue() <= 0 || 
-            (int)telProveedor.getValue() <= 0){
-            
-           JOptionPane.showMessageDialog(pintarPanel, "Se cargaron mal los datos", "Error", JOptionPane.ERROR_MESSAGE); 
-        }else{
-            ClienteProveedor aux = new ClienteProveedor((int)dniProveedor.getValue(), nombreProveedor.getText() , apellidoProveedor.getText(), ciudadProveedor.getText(), (int)cuitProveedor.getValue(), (int)telProveedor.getValue(), direProveedor.getText());
-            listaPersonas.add(aux);
-            nombreProveedor.setText("");
-            apellidoProveedor.setText("");
-            dniProveedor.setValue(0);
-            telProveedor.setValue(0);
-            direProveedor.setText("");
-            cuitProveedor.setValue(0); 
-            ciudadProveedor.setText("");
-            cargarArchivo();
-        }
+        apellidoProveedor.getText().equals("") || 
+        direProveedor.getText().equals("") || 
+        ciudadProveedor.getText().equals("") || 
+        (int)dniProveedor.getValue() <= 0 || 
+        (int)cuitProveedor.getValue() <= 0 || 
+        (int)telProveedor.getValue() <= 0) {
+        
+        JOptionPane.showMessageDialog(pintarPanel, "Se cargaron mal los datos", "Error", JOptionPane.ERROR_MESSAGE); 
+    } else {
+        ClienteProveedor aux = new ClienteProveedor((int)dniProveedor.getValue(), nombreProveedor.getText(), 
+                                                     apellidoProveedor.getText(), ciudadProveedor.getText(), 
+                                                     (int)cuitProveedor.getValue(), (int)telProveedor.getValue(), 
+                                                     direProveedor.getText());
+        listaPersonas.add(aux);
+        nombreProveedor.setText("");
+        apellidoProveedor.setText("");
+        dniProveedor.setValue(0);
+        telProveedor.setValue(0);
+        direProveedor.setText("");
+        cuitProveedor.setValue(0); 
+        ciudadProveedor.setText("");
+    }
+        cargarArchivo();
         llenarDatosCompra();
-        boxProveedor.setModel(defaul);
-        for (Persona clientes : listaPersonas){
-            if (clientes instanceof ClienteProveedor){
-                boxProveedor.addItem(String.valueOf(((ClienteProveedor) clientes).getCuit()));
-                actualizarTablaProveedores();
+        actualizarTablaProveedores();
+
+        DefaultComboBoxModel<String> modeloProveedor = new DefaultComboBoxModel<>();
+        for (Persona proveedor : listaPersonas) {
+            if (proveedor instanceof ClienteProveedor) {
+                modeloProveedor.addElement(proveedor.getNombre());
             }
         }
-        
+        boxProveedor.setModel(modeloProveedor);
+
     }//GEN-LAST:event_cargarProveedoresActionPerformed
 
     private void cargarMaterialesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarMaterialesActionPerformed
@@ -1931,10 +2080,10 @@ public class Interfaz extends javax.swing.JFrame {
             ((Number)ventaMaterial.getValue()).doubleValue(), 
             ((Number)compraMaterial.getValue()).doubleValue()
         );
-        cargarArchivo();
         listaMateriales.add(aux);
         llenarDatosCompra();
         llenarDatosVenta();
+        cargarArchivo();
         
         // Limpieza de los campos después de añadir el material
         nombreMaterial.setText("");
@@ -1969,7 +2118,25 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_botonMaterialesActionPerformed
 
     private void actualizarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actualizarEmpleadoActionPerformed
-       
+        Iterator<Empleado> iterator = listaEmpleados.iterator();
+        while (iterator.hasNext()){
+            Empleado empleado = iterator.next();
+            if (empleado.getNombre() == boxModifEmpleado.getSelectedItem()){
+                empleado.setNombre(nombreEmpleado1.getText());
+                empleado.setApellido(apellidoEmpleado1.getText());
+                empleado.setDireccion(direEmpleado1.getText());
+                empleado.setTelefono((int) teleEmpleado1.getValue());
+                empleado.setFecha(fechaEmpleado1.getDateFormatString());
+            }
+    }
+        boxModifEmpleado.setSelectedIndex(-1);
+        nombreEmpleado1.setText("");
+        apellidoEmpleado1.setText("");
+        direEmpleado1.setText("");
+        teleEmpleado1.setValue(0);
+        fechaEmpleado1.setDate(null);
+        actualizarTabla();
+        cargarArchivo();
     }//GEN-LAST:event_actualizarEmpleadoActionPerformed
 
     private void eliminarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarEmpleadoActionPerformed
@@ -1991,25 +2158,8 @@ public class Interfaz extends javax.swing.JFrame {
         actualizarTabla();
         DefaultComboBoxModel defaul = new DefaultComboBoxModel();
         boxModifEmpleado.setModel(defaul);
-        cargarArchivo();
+        
     }//GEN-LAST:event_eliminarEmpleadoActionPerformed
-
-    private void boxModifEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxModifEmpleadoActionPerformed
-        Empleado aux = new Empleado();
-        Date fechaDate = fechaEmpleado.getDate();
-        String fecha = sdf.format(fechaDate);
-        for(Empleado empleados : listaEmpleados){
-            if (empleados.getNroDeLegajo() == (Integer.parseInt(String.valueOf(boxModifEmpleado.getSelectedItem())))){
-                 aux = new Empleado(empleados.getDni(),empleados.getNombre(),empleados.getApellido(),empleados.getDireccion(),empleados.getTelefono(),empleados.getNroDeLegajo(),empleados.getFecha());
-            }
-        }
-        nombreEmpleado1.setText(aux.getNombre());
-        apellidoEmpleado1.setText(aux.getApellido());
-        teleEmpleado1.setValue(aux.getTelefono());
-        direEmpleado1.setText(aux.getDireccion());
-        fechaEmpleado.setDate(fechaDate);
-        cargarArchivo();
-    }//GEN-LAST:event_boxModifEmpleadoActionPerformed
 
     private void eliminarCompradorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarCompradorActionPerformed
         Iterator<Persona> iterator = listaPersonas.iterator();
@@ -2031,27 +2181,35 @@ public class Interfaz extends javax.swing.JFrame {
         actualizarTablaCompradores();
         DefaultComboBoxModel defaul = new DefaultComboBoxModel();
         boxComprador.setModel(defaul);
-        cargarArchivo();
+        
         
     }//GEN-LAST:event_eliminarCompradorActionPerformed
 
     private void actualizarCompradorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actualizarCompradorActionPerformed
-        
-    }//GEN-LAST:event_actualizarCompradorActionPerformed
+        Iterator<Persona> iterator = listaPersonas.iterator();
+    
+        while (iterator.hasNext()) {
+            Persona persona = iterator.next();
 
-    private void boxCompradorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxCompradorActionPerformed
-        ClienteComprador aux = new ClienteComprador();
-        for (Persona cliente : listaPersonas) {
-            if (cliente instanceof ClienteComprador && cliente.getDni() == Integer.parseInt(String.valueOf(boxComprador.getSelectedItem()))){
-                ClienteComprador clienteComprador = (ClienteComprador) cliente;
-                aux = new ClienteComprador (clienteComprador.getDni(), clienteComprador.getNombre(), clienteComprador.getApellido(), clienteComprador.getDireccion(), clienteComprador.getTelefono());
+            if (persona instanceof ClienteComprador) {
+                ClienteComprador comprador = (ClienteComprador) persona;
+                if(comprador.getNombre() == boxComprador.getSelectedItem()){
+                    comprador.setNombre(nombreComprador1.getText());
+                    comprador.setApellido(apellidoComprador1.getText());
+                    comprador.setDireccion(direComprador1.getText());
+                    comprador.setTelefono((int) telComprador1.getValue());
+                }
             }
         }
-        nombreComprador1.setText(aux.getNombre());
-        apellidoComprador1.setText(aux.getApellido());
-        telComprador1.setValue(aux.getTelefono());
-        direComprador1.setText(aux.getDireccion());
-    }//GEN-LAST:event_boxCompradorActionPerformed
+        nombreComprador1.setText("");
+        apellidoComprador1.setText("");
+        direComprador1.setText("");
+        telComprador1.setValue(0);
+        boxComprador.setSelectedIndex(-1);
+        cargarArchivo();
+        actualizarTablaCompradores();
+    
+    }//GEN-LAST:event_actualizarCompradorActionPerformed
 
     private void eliminarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarProveedorActionPerformed
         Iterator<Persona> iterator = listaPersonas.iterator();
@@ -2078,13 +2236,36 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_eliminarProveedorActionPerformed
 
     private void actualizarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actualizarProveedorActionPerformed
-        
+        Iterator<Persona> iterator = listaPersonas.iterator();
+    
+        while (iterator.hasNext()) {
+            Persona persona = iterator.next();
+
+            if (persona instanceof ClienteProveedor) {
+                ClienteProveedor proveedor = (ClienteProveedor) persona;
+                if(proveedor.getNombre() == boxProveedor.getSelectedItem()){
+                    proveedor.setNombre(nombreProveedor1.getText());
+                    proveedor.setApellido(apellidoProveedor1.getText());
+                    proveedor.setDireccion(direProveedor1.getText());
+                    proveedor.setTelefono((int) telProveedor1.getValue());
+                    proveedor.setCiudad(ciudadProveedor1.getText());
+                }
+            }
+        }
+        nombreProveedor1.setText("");
+        apellidoProveedor1.setText("");
+        direProveedor1.setText("");
+        telProveedor1.setValue(0);
+        ciudadProveedor1.setText("");
+        boxProveedor.setSelectedIndex(-1);
+        cargarArchivo();
+        actualizarTablaProveedores();
     }//GEN-LAST:event_actualizarProveedorActionPerformed
 
     private void boxProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxProveedorActionPerformed
         ClienteProveedor aux = new ClienteProveedor();
         for (Persona cliente : listaPersonas) {
-            if (cliente instanceof ClienteProveedor && ((ClienteProveedor)cliente).getCuit() == Integer.parseInt(String.valueOf(boxProveedor.getSelectedItem()))){
+            if (cliente instanceof ClienteProveedor && cliente.getNombre() == boxProveedor.getSelectedItem()){
                 ClienteProveedor clienteProveedor = (ClienteProveedor) cliente;
                 aux = new ClienteProveedor (clienteProveedor.getDni(), clienteProveedor.getNombre(), clienteProveedor.getApellido(), clienteProveedor.getDireccion(), clienteProveedor.getTelefono(), clienteProveedor.getCuit(), clienteProveedor.getCiudad());
             }
@@ -2100,6 +2281,9 @@ public class Interfaz extends javax.swing.JFrame {
         Date fechaDate = fechaCompra.getDate();
         String fecha = sdf.format(fechaDate);
         ClienteComprador cliente = (ClienteComprador) boxCompraClientes.getSelectedItem();
+        cliente.setCant(cliente.getCant()+1);
+        
+        
         String estado;
         
         if (botonPagado.isSelected()) {
@@ -2126,6 +2310,9 @@ public class Interfaz extends javax.swing.JFrame {
         String fecha = sdf.format(fechaDate);
         ClienteProveedor cliente = (ClienteProveedor)boxProveedorVenta.getSelectedItem();
         Material material = (Material)boxMaterialVenta.getSelectedItem();
+        Number value = (Number) cantidadMaterial.getValue();
+        double cantidad = value.doubleValue();
+
         String estado;
         
         if (ventaDespachada.isSelected()) {
@@ -2134,13 +2321,13 @@ public class Interfaz extends javax.swing.JFrame {
             estado = "No Despachado";
         }
         
-        Venta venta = new Venta(cliente, material, fecha, estado);
+        Venta venta = new Venta(cliente, material, fecha, estado, cantidad);
         listaVentas.add(venta);
-        
         
         
         boxProveedorVenta.setSelectedIndex(-1);
         boxMaterialVenta.setSelectedIndex(-1);
+        cantidadMaterial.setValue(0);
         estadoVenta.clearSelection();
         cargarArchivo();
     }//GEN-LAST:event_cargarVentaActionPerformed
@@ -2174,21 +2361,136 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void listarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listarClientesActionPerformed
-        Collections.sort(listaPersonas, Comparator.comparing((Persona p) -> (p.getNombre() + " " + p.getApellido()).toLowerCase()));
+        Collections.sort(listaPersonas, (Persona c1, Persona c2) -> c1.getApellido().compareToIgnoreCase(c2.getApellido()));
         DefaultTableModel modeloTabla = new DefaultTableModel();
-         modeloTabla.addColumn("Nombre");
         modeloTabla.addColumn("Apellido");
+        modeloTabla.addColumn("Nombre");
         modeloTabla.addColumn("DNI");
         
         for (Persona personas : listaPersonas){
             modeloTabla.addRow(new Object[]{
-               personas.getNombre(),
                personas.getApellido(),
+               personas.getNombre(),
                personas.getDni(),
             });
         }
+        tablaListarClientesAlf.setModel(modeloTabla);
     }//GEN-LAST:event_listarClientesActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        DefaultTableModel modeloTabla = new DefaultTableModel();
+        ArrayList<ClienteComprador> listaAux = new ArrayList<>();
+        for (Persona persona : listaPersonas){
+            if(persona instanceof ClienteComprador){
+                listaAux.add((ClienteComprador)persona);
+            }
+        }
+        Collections.sort(listaAux, new Comparador());
+        DefaultTableModel tabla = new DefaultTableModel();
+        tabla.addColumn("Apellido");
+        tabla.addColumn("Nombre");
+        tabla.addColumn("DNI");
+        tabla.addColumn("Cantidad  Compras");
+        for(ClienteComprador cliente : listaAux){
+            tabla.addRow (new Object[]{
+               cliente.getApellido(),
+               cliente.getNombre(),
+               cliente.getDni(),
+               cliente.getCant()
+            });
+        }
+        tablaListarClientes.setModel(tabla);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void boxModifEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxModifEmpleadoActionPerformed
+        Empleado aux = new Empleado();
+        for (Empleado empleado : listaEmpleados){
+            if(empleado.getNombre() == boxModifEmpleado.getSelectedItem()){
+                aux = new Empleado(empleado.getDni(), empleado.getNombre(), empleado.getApellido(), empleado.getDireccion(), empleado.getTelefono(),empleado.getNroDeLegajo() , empleado.getFecha());
+            }
+        }
+        nombreEmpleado1.setText(aux.getNombre());
+        apellidoEmpleado1.setText(aux.getApellido());
+        direEmpleado1.setText(aux.getDireccion());
+        teleEmpleado1.setValue(aux.getTelefono());
+    }//GEN-LAST:event_boxModifEmpleadoActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Date fecha1 = listarFecha1.getDate();
+        Date fecha2 = listarFecha2.getDate();
+    
+    // Verificar que ambas fechas no sean nulas
+    if (fecha1 == null || fecha2 == null) {
+        JOptionPane.showMessageDialog(null, "Por favor selecciona ambas fechas", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Verificar que la fecha de inicio sea anterior o igual a la fecha de fin
+    if (fecha1.after(fecha2)) {
+        JOptionPane.showMessageDialog(null, "La fecha de inicio no puede ser posterior a la fecha de fin", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    double totalVentas = 0.0;
+    ArrayList<Venta> ventaAux = new ArrayList<>();
+    
+    for (Venta venta : listaVentas) {
+        // Obtener la fecha de la venta
+        Date fechaVenta;
+        try {
+            fechaVenta = sdf.parse(venta.getFecha());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al analizar la fecha de una venta", "Error", JOptionPane.ERROR_MESSAGE);
+            continue;
+        }
+        
+        // Verificar si la fecha de la venta está dentro del rango seleccionado
+        if (!fechaVenta.before(fecha1) && !fechaVenta.after(fecha2)) {
+            ventaAux.add(venta);
+            totalVentas += venta.getMaterial().getPrecioVenta() * venta.getCantidad();
+        }
+    }
+    
+    DefaultTableModel tabla = new DefaultTableModel();
+    tabla.addColumn("Cliente");
+    tabla.addColumn("Material");
+    tabla.addColumn("Cantidad de materiales");
+    tabla.addColumn("Fecha");
+    tabla.addColumn("Estado");
+    
+    for (Venta venta : ventaAux) {
+        tabla.addRow(new Object[]{
+           venta.getProveedor().getNombre(), // Asumiendo que quieres el nombre del proveedor
+           venta.getMaterial().getNombre(), // Asumiendo que quieres el nombre del material
+           venta.getCantidad(),
+           venta.getFecha(),
+           venta.getEstado()
+        });
+    }
+    
+    tablaListarVentas.setModel(tabla);
+    mostrarTotal.setText(String.format("%,.2f", totalVentas));
+        
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void boxCompradorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxCompradorActionPerformed
+        ClienteComprador aux = new ClienteComprador();
+        for (Persona persona : listaPersonas){
+           if(persona instanceof ClienteComprador && persona.getNombre() == boxComprador.getSelectedItem()){
+               ClienteComprador cliente = (ClienteComprador) persona;
+               aux = new ClienteComprador(cliente.getDni(), cliente.getNombre(), cliente.getApellido(), cliente.getDireccion(), cliente.getTelefono());
+           }
+        }
+        nombreComprador1.setText(aux.getNombre());
+        apellidoComprador1.setText(aux.getApellido());
+        direComprador1.setText(aux.getDireccion());
+        telComprador1.setValue(aux.getTelefono());
+    }//GEN-LAST:event_boxCompradorActionPerformed
+     
+  
+    
+    
     private void llenarDatosCompra(){
         for (Persona comprador : listaPersonas){
             if (comprador instanceof ClienteComprador){
@@ -2225,6 +2527,8 @@ public class Interfaz extends javax.swing.JFrame {
         pintarPanel.repaint();
         
     }
+    
+    
     
     private void actualizarTabla(){
         // Limpiar el modelo de la tabla
@@ -2267,6 +2571,8 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }
     
+   
+    
     private void actualizarTablaMateriales(){
         // Limpiar el modelo de la tabla
         DefaultTableModel modeloTabla = new DefaultTableModel();
@@ -2279,8 +2585,9 @@ public class Interfaz extends javax.swing.JFrame {
                material.getNombre(),
                material.getMedida(),
                material.getStock(),
-               material.getPrecioCompra(),
                material.getPrecioVenta(),
+               material.getPrecioCompra(),
+               
         });
         }
     }
@@ -2300,8 +2607,8 @@ public class Interfaz extends javax.swing.JFrame {
                 ((ClienteProveedor)clientes).getDni(),
                 ((ClienteProveedor) clientes).getDireccion(),
                 ((ClienteProveedor)clientes).getTelefono(),
+                ((ClienteProveedor)clientes).getCiudad(),
                 ((ClienteProveedor)clientes).getCuit(),
-                ((ClienteProveedor)clientes).getCiudad()
                 });
             }
         }
@@ -2383,6 +2690,7 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> boxModifEmpleado;
     private javax.swing.JComboBox<String> boxProveedor;
     private javax.swing.JComboBox<Persona> boxProveedorVenta;
+    private javax.swing.JSpinner cantidadMaterial;
     private javax.swing.JButton cargarCompra;
     private javax.swing.JButton cargarCompradores;
     private javax.swing.JButton cargarMateriales;
@@ -2413,14 +2721,12 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JLabel extBttn;
     private com.toedter.calendar.JDateChooser fechaCompra;
     private com.toedter.calendar.JDateChooser fechaEmpleado;
+    private com.toedter.calendar.JDateChooser fechaEmpleado1;
     private com.toedter.calendar.JDateChooser fechaVenta;
     private javax.swing.JPanel header;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
-    private com.toedter.calendar.JDateChooser jDateChooser2;
-    private com.toedter.calendar.JDateChooser jDateChooser3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -2471,6 +2777,9 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel55;
+    private javax.swing.JLabel jLabel56;
+    private javax.swing.JLabel jLabel57;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -2494,9 +2803,12 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JSpinner legajoEmpleado;
     private javax.swing.JButton listarClientes;
     private javax.swing.JButton listarEmpleados;
+    private com.toedter.calendar.JDateChooser listarFecha1;
+    private com.toedter.calendar.JDateChooser listarFecha2;
     private javax.swing.JPanel listarPanel;
     private javax.swing.JPanel materialesPanel;
     private javax.swing.JPanel menu;
+    private javax.swing.JTextField mostrarTotal;
     private javax.swing.JTextField nombreComprador;
     private javax.swing.JTextField nombreComprador1;
     private javax.swing.JTextField nombreEmpleado;
@@ -2513,9 +2825,9 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JTable tablaCompradores1;
     private javax.swing.JTable tablaEmpleados;
     private javax.swing.JTable tablaListarClientes;
-    private javax.swing.JTable tablaListarClientes1;
-    private javax.swing.JTable tablaListarClientes2;
+    private javax.swing.JTable tablaListarClientesAlf;
     private javax.swing.JTable tablaListarEmpleados;
+    private javax.swing.JTable tablaListarVentas;
     private javax.swing.JTable tablaMateriales;
     private javax.swing.JTable tablaProveedores;
     private javax.swing.JSpinner telComprador;
