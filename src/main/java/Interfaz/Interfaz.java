@@ -38,7 +38,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.TableView;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Logger;
 import javax.swing.table.TableModel;
+
+
 
 /**
  *
@@ -2142,7 +2145,7 @@ public class Interfaz extends javax.swing.JFrame {
     private void eliminarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarEmpleadoActionPerformed
         Empleado aux = new Empleado();
         for (int i=0; i<listaEmpleados.size(); i++){
-            if (listaEmpleados.get(i).getNroDeLegajo() == (Integer.parseInt(String.valueOf(boxModifEmpleado.getSelectedItem())))){
+            if (listaEmpleados.get(i).getNombre() == boxModifEmpleado.getSelectedItem()){
                 listaEmpleados.remove(i);
             }
         }
@@ -2158,6 +2161,7 @@ public class Interfaz extends javax.swing.JFrame {
         actualizarTabla();
         DefaultComboBoxModel defaul = new DefaultComboBoxModel();
         boxModifEmpleado.setModel(defaul);
+        cargarArchivo();
         
     }//GEN-LAST:event_eliminarEmpleadoActionPerformed
 
@@ -2165,7 +2169,7 @@ public class Interfaz extends javax.swing.JFrame {
         Iterator<Persona> iterator = listaPersonas.iterator();
         while (iterator.hasNext()) {
             Persona cliente = iterator.next();
-            if (cliente instanceof ClienteComprador && cliente.getDni() == Integer.parseInt(String.valueOf(boxComprador.getSelectedItem()))) {
+            if (cliente instanceof ClienteComprador && cliente.getNombre() == (boxComprador.getSelectedItem())) {
                 iterator.remove();
                 break;
             }
@@ -2181,6 +2185,7 @@ public class Interfaz extends javax.swing.JFrame {
         actualizarTablaCompradores();
         DefaultComboBoxModel defaul = new DefaultComboBoxModel();
         boxComprador.setModel(defaul);
+        cargarArchivo();
         
         
     }//GEN-LAST:event_eliminarCompradorActionPerformed
@@ -2215,7 +2220,7 @@ public class Interfaz extends javax.swing.JFrame {
         Iterator<Persona> iterator = listaPersonas.iterator();
         while (iterator.hasNext()) {
             Persona cliente = iterator.next();
-            if (cliente instanceof ClienteProveedor && ((ClienteProveedor)cliente).getCuit() == Integer.parseInt(String.valueOf(boxProveedor.getSelectedItem()))) {
+            if (cliente instanceof ClienteProveedor && ((ClienteProveedor)cliente).getNombre() == boxProveedor.getSelectedItem()) {
                 iterator.remove();
                 break;
             }
@@ -2630,6 +2635,8 @@ public class Interfaz extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
+        
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -2656,6 +2663,8 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                
+               
                 new Interfaz().setVisible(true);
             }
         });
